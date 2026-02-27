@@ -1,5 +1,7 @@
 # ssim-grey
 
+[![CI](https://github.com/paultendo/ssim-grey/actions/workflows/ci.yml/badge.svg)](https://github.com/paultendo/ssim-grey/actions/workflows/ci.yml)
+
 Fast SSIM (Structural Similarity Index) for single-channel greyscale images. Zero dependencies.
 
 ## Why
