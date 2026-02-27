@@ -89,38 +89,37 @@ export function ssimGrey(
     }
   }
 
-  // Compute per-window SSIM and accumulate mean (Welford's online mean,
-  // matching ssim.js's weber accumulation pattern).
-  let mssim = 0;
-  let count = 0;
+  // Compute per-window SSIM.
+  // Replaces 5 divisions/window with multiplications; caches squared means;
+  // uses simple accumulation (SSIM is bounded, so Welford's is unnecessary).
+  const invWsSq = 1 / wsSq;
+  let ssimSum = 0;
 
   for (let wy = 0; wy < winH; wy++) {
+    const tlBase = wy * sw;
+    const blBase = (wy + ws) * sw;
+
     for (let wx = 0; wx < winW; wx++) {
       // Rectangle sum from (wx, wy) to (wx+ws-1, wy+ws-1) via SAT
-      const tl = wy * sw + wx;
-      const tr = wy * sw + (wx + ws);
-      const bl = (wy + ws) * sw + wx;
-      const br = (wy + ws) * sw + (wx + ws);
+      const tl = tlBase + wx;
+      const tr = tl + ws;
+      const bl = blBase + wx;
+      const br = bl + ws;
 
-      const sX = satX[br] - satX[bl] - satX[tr] + satX[tl];
-      const sY = satY[br] - satY[bl] - satY[tr] + satY[tl];
+      const meanX = (satX[br] - satX[bl] - satX[tr] + satX[tl]) * invWsSq;
+      const meanY = (satY[br] - satY[bl] - satY[tr] + satY[tl]) * invWsSq;
+      const meanX2 = meanX * meanX;
+      const meanY2 = meanY * meanY;
 
-      const meanX = sX / wsSq;
-      const meanY = sY / wsSq;
-
-      const varX = (satX2[br] - satX2[bl] - satX2[tr] + satX2[tl]) / wsSq - meanX * meanX;
-      const varY = (satY2[br] - satY2[bl] - satY2[tr] + satY2[tl]) / wsSq - meanY * meanY;
-      const covXY = (satXY[br] - satXY[bl] - satXY[tr] + satXY[tl]) / wsSq - meanX * meanY;
+      const varX = (satX2[br] - satX2[bl] - satX2[tr] + satX2[tl]) * invWsSq - meanX2;
+      const varY = (satY2[br] - satY2[bl] - satY2[tr] + satY2[tl]) * invWsSq - meanY2;
+      const covXY = (satXY[br] - satXY[bl] - satXY[tr] + satXY[tl]) * invWsSq - meanX * meanY;
 
       const num = (2 * meanX * meanY + c1) * (2 * covXY + c2);
-      const den = (meanX * meanX + meanY * meanY + c1) * (varX + varY + c2);
-      const val = num / den;
-
-      // Welford's online mean (matches ssim.js weber accumulation)
-      count++;
-      mssim = mssim + (val - mssim) / count;
+      const den = (meanX2 + meanY2 + c1) * (varX + varY + c2);
+      ssimSum += num / den;
     }
   }
 
-  return mssim;
+  return ssimSum / (winW * winH);
 }

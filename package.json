@@ -18,6 +18,12 @@
   "files": [
     "dist"
   ],
+  "keywords": ["ssim", "greyscale", "grayscale", "image", "similarity", "structural-similarity"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paultendo/ssim-grey.git"
+  },
+  "author": "Paul Wood FRSA (@paultendo)",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^25.3.2",
