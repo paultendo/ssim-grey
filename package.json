@@ -1,0 +1,26 @@
+{
+  "name": "ssim-grey",
+  "version": "0.1.0",
+  "description": "Fast SSIM for single-channel greyscale images. Zero dependencies.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "selftest": "node --test dist/selftest.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.3.2",
+    "typescript": "^5.7.0"
+  }
+}
